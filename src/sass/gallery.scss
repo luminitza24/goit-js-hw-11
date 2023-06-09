@@ -1,0 +1,106 @@
+.gallery{
+   display:flex;
+    flex-wrap:wrap;
+    justify-content: center;
+    margin: 0,auto;
+    
+    
+
+&__items {
+    position:relative;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    gap:10px;
+    width: 350px;
+    height: 350px;
+    margin: 0 auto;
+    border-radius: 4px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+ 
+    }}
+ .picture{
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    bottom: 10px;
+    right: 10px;
+ }
+      .img {
+        
+        width:265px;
+        height:200px;
+        object-fit: cover;
+      }
+    
+    .gallery__details {
+        position: absolute;
+        bottom: 10px;
+        left:10px;
+        &__info {
+          
+          gap: 10px;
+          padding-bottom: 10px;
+          margin-left: 10px;
+          color:black;
+        }
+      }
+
+
+    @media (min-width: 768px) {
+        .gallery {
+          padding: 100px 10px 20px 10px;
+          display: flex;
+          flex-direction: row;
+          flex-wrap: wrap;
+          gap: 10px;
+          justify-content: center;
+      
+          &__items {
+            flex-basis: calc(50% - 20px);
+          }
+        }
+      }
+      @media (min-width: 1200px) {
+        .gallery {
+          margin: 120px 10px 20px 10px;
+          &__items {
+            flex-basis: calc((100%/4) - 20px);
+            &:hover .link {
+              bottom: 150px;
+            }
+            &__info {
+                display: flex;
+              gap: 30px;
+              font-size: 16px;
+              font-weight: 500;
+              padding-bottom: 10px;
+              margin-left: 12px;
+              
+            }
+          }
+        }
+      }
+      .load {
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5), inset 0 0 10px rgba(0, 0, 0, 0.3);
+        font-weight: 900;
+        color: rgb(186, 127, 148);
+        border: none;
+        padding: 0;
+        font-size: 14px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        width:120px;
+        line-height: 50px;
+        &__more {
+          display: none;
+          
+        }
+      }
+      @media (min-width: 1200px) {
+        .load__more { 
+          font-size: 20px;
+          border-radius: 20px;
+          width:200px;
+        }
+      }

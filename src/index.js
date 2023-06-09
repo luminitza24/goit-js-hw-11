@@ -1,73 +1,84 @@
-const limit = 40; 
-let nrTotalPagini = false;
-let paginaCurenta = 1;
-let skip = 0;
+import Notiflix from 'notiflix';
+import { galleryClear, Manageresponse } from './js/gallerymarkup';
+import {toggleButton} from './js/button';
+import { fetchImages } from './js/FetchImages';
 
-const mergiLaPagina = nrPagina => {
-  skip = limit * (nrPagina - 1);
-  paginaCurenta = nrPagina;
-  functieDeFetch();
-};
+import SimpleLightbox from 'simplelightbox';
+import 'simplelightbox/dist/simple-lightbox.min.css';
 
-const construiestePaginare = () => {
-  const paginare = document.getElementById("pagination");
-  paginare.innerHTML = "";
-  const paginaPrecedenta = document.createElement("button");
-  paginaPrecedenta.innerText = "<";
-  paginaPrecedenta.addEventListener("click", () => {
-    mergiLaPagina(paginaCurenta - 1);
-  });
-  if (paginaCurenta === 1) {
-    paginaPrecedenta.disabled = true;
-  }
-  paginare.appendChild(paginaPrecedenta);
+const Form = document.querySelector('.search-form');
+const loadButton = document.querySelector('.load__more');
 
-  for (let i = 1; i <= nrTotalPagini; i++) {
-    const butonPagina = document.createElement("button");
-    butonPagina.innerText = i;
-    if (paginaCurenta === i) {
-      butonPagina.classList.add("active");
-    } else {
-      butonPagina.addEventListener("click", () => {
-        mergiLaPagina(i);
-      });
-    }
-
-    paginare.appendChild(butonPagina);
+let currentPage = 1;
+const per_page = 40;
+let query = '';
+Form.addEventListener('submit', async event => {
+  event.preventDefault();
+  const searchQuery = Form.querySelector('[name=searchQuery]').value;
+  if (searchQuery === '') {
+    Notiflix.Notify.failure('Please write something');
+    return;
   }
 
-  const paginaUrmatoare = document.createElement("button");
-  paginaUrmatoare.innerText = ">";
-  paginaUrmatoare.addEventListener("click", () => {
-    mergiLaPagina(paginaCurenta + 1);
-  });
-  if (paginaCurenta === nrTotalPagini) {
-    paginaUrmatoare.disabled = true;
+  if (query !== searchQuery) {
+    query = searchQuery;
+    currentPage = 1;
+    galleryClear();
   }
-  paginare.appendChild(paginaUrmatoare);
-};
-
-const construiesteListaProduse = produse => {
-  const listaProduse = document.getElementById("lista-produse");
-  listaProduse.innerHTML = "";
-  produse.forEach(produs => {
-    const elementProdus = document.createElement("div");
-    elementProdus.innerHTML = `(${produs.id}) ${produs.title}`;
-    listaProduse.appendChild(elementProdus);
-  });
-};
-
-const functieDeFetch = () => {
-  fetch("https://pixabay.com/api/?key=36867365-3643e28b2c6642941cb9e037d" + limit + "&skip=" + skip)
-    .then(res => res.json())
-    .then(data => {
-      console.log(data);
-      construiesteListaProduse(products);
-      if (nrTotalPagini === false) {
-        nrTotalPagini = Math.ceil(total / limit); // 7.2 => 8, 6.9 => 7
+  try {
+    const resp = await fetchImages(query, currentPage, per_page);
+    Manageresponse(resp, per_page);
+    const totalHits = resp.totalHits || 0;
+    if (currentPage === 1) {
+      if (totalHits) {
+        Notiflix.Notify.success(`Hooray! We found ${totalHits} images.`);
+        const lightbox = new SimpleLightbox('.gallery a');
+        lightbox.refresh();
+      } else {
+        Notiflix.Notify.failure('Sorry, there are no images matching your search query. Please try again.');
       }
-      construiestePaginare();
-    });
-};
+    }
+    Form.reset();
+  } catch (error) {
+    console.log(error);
+    Notiflix.Notify.failure('Error occurred. Please try again later.');
+  }
+});
 
-functieDeFetch();
+loadButton.addEventListener('click', async () => {
+  currentPage++;
+  try {
+    const resp = await fetchImages(query, currentPage, per_page);
+    Manageresponse(resp, per_page);
+    const totalHits = resp.totalHits || 0;
+    if (currentPage *per_page >= totalHits) {
+      toggleButton(false);
+      if (totalHits > 0) {
+        Notiflix.Notify.info("We're sorry, but you've reached the end of search results.");
+      }
+    }
+    const lightbox = new SimpleLightbox('.gallery a' );
+    lightbox.refresh();
+   
+    const { height: cardHeight } = document
+      .querySelector('.gallery')
+      .firstElementChild.getBoundingClientRect();
+
+    window.scrollBy({
+      top: cardHeight * 2,
+      behavior: 'smooth',
+    });
+    Form.reset();
+  } catch (error) {
+    console.log(error);
+    Notiflix.Notify.failure('Error occurred. Please try again later.');
+  }
+});
+var controller = new ScrollMagic.Controller();
+var scene = new ScrollMagic.Scene({
+  triggerElement: '#trigger', 
+  duration: 400 
+})
+.setPin('pinnedElement'); 
+
+controller.addScene(scene);
