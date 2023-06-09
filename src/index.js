@@ -1,6 +1,6 @@
 import Notiflix from 'notiflix';
 import { galleryClear, Manageresponse } from './js/gallerymarkup';
-import {toggleButton} from './js/button';
+import toggleButton from './js/button';
 import { fetchImages } from './js/FetchImages';
 
 import SimpleLightbox from 'simplelightbox';
